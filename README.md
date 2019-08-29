@@ -1,5 +1,5 @@
 # UHD258 ExamineR
-examine hyperspectral recordings from a UHD258 device
+examine hyperspectral recordings from an UHD258 device
 
 # v.1.0.1 - README
 
