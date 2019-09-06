@@ -77,7 +77,12 @@ ui = dashboardPage(
 
     # specify input file:
     fileInput(inputId = 'file',
-              label = 'Select raster:')
+              label = 'Select raster:'),
+    
+    # choose Median window size:
+    selectInput('sliderROT', label='rotate image clockwise by:', 
+                choices = c(0,90,180,270), 
+                selected=0)
     ),
   
   # make main body:
@@ -94,7 +99,9 @@ ui = dashboardPage(
         plotOutput("rast", brush = brushOpts(
           id = "rasPlot_brush",
           stroke = 'cyan',
-          fill='red'))
+          fill='red'),
+          width = '100%',
+          height = '600px')
       ),
       
       column(
@@ -240,11 +247,24 @@ server <- function(input, output) {
     }
   }
   
-  # load raster from file:
+  # load raster from file and rotate:
   imgInput <- reactive({
     if (nlayers(stack(input$file$datapath)) != 41) {
       stop('input raster must have 41 bands.')
-    } else cl <- stack(input$file$datapath)
+    } else {
+      if (input$sliderROT == 0) {
+        cl <- stack(input$file$datapath)
+      }
+      if (input$sliderROT == 90) {
+        cl <- t(flip(stack(input$file$datapath), 2))
+      }
+      if (input$sliderROT == 180) {
+        cl <- flip(flip(stack(input$file$datapath),1),2)
+      }
+      if (input$sliderROT == 270) {
+        cl <- t(flip(stack(input$file$datapath),1))
+      }
+    }
     
     # and apply spatial filter if selected:
     if (input$checkboxSpatialFilter) {
