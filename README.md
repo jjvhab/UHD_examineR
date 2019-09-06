@@ -20,7 +20,7 @@ manipulated raster can be saved to a TIF file.
 
 + install required packages
 + run app via `shiny::runApp()`
-+ import hyperspectral raster stack ('e.g. test_image.tif')
++ import hyperspectral raster stack (e.g. 'test_image.tif')
 + interactively examine the spectral data
 + optionally apply spatial and spectral filters
 + export selected spectra or the processed raster data
