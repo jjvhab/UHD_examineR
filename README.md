@@ -15,7 +15,7 @@ is generated (+/- sd). The selected spectrum can be saved
 to a data.frame, which can be exported as CSV file. The
 manipulated raster can be saved to a TIF file.
 
-![](sc.png)
+![](sc.png | width=80)
 
 ---------------------
 ### Usage:
