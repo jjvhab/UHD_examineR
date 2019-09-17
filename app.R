@@ -79,7 +79,7 @@ ui = dashboardPage(
     fileInput(inputId = 'file',
               label = 'Select raster:'),
     
-    # choose Median window size:
+    # choose image rotation angle:
     selectInput('sliderROT', label='rotate image clockwise by:', 
                 choices = c(0,90,180,270), 
                 selected=0)
