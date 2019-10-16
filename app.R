@@ -1,4 +1,4 @@
-# UHD examineR v1.0.0 by V.Haburaj
+# UHD examineR v1.0.1 by V.Haburaj
 #
 # Load and inspect hyperspectral recordings captured with a 
 # Cubert UHD258 snapshot camera. The imported raster file is 
