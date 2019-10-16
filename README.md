@@ -75,3 +75,7 @@ Lukas W. Lehnert, Hanna Meyer, Joerg Bendix (2018). hsdar:
  
 ---------------------
 ### MIT License
+
+or cite via DOI on [Zenodo](https://doi.org/10.5281/zenodo.3491697)
+
+
