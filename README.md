@@ -1,4 +1,4 @@
-# UHD258 ExamineR
+# UHD examineR
 examine hyperspectral recordings from an UHD258 device
 
 # v.1.0.1 - README
