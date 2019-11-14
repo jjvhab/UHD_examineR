@@ -1,9 +1,9 @@
-# UHD examineR v1.0.1 by V.Haburaj
+# UHD examineR v1.0.2 by V.Haburaj
 #
-# Load and inspect hyperspectral recordings captured with a 
-# Cubert UHD258 snapshot camera. The imported raster file is 
+# Load and inspect hyperspectral recordings captured with a
+# Cubert UHD258 snapshot camera. The imported raster file is
 # plotted as RGB image. The raster can be manipulated
-# (spatial and spectral filters). By selecting an area of 
+# (spatial and spectral filters). By selecting an area of
 # interest in the plotted raster, a plot of the mean spectrum
 # is generated (+/- sd). The selected spectrum can be saved
 # to a data.frame, which can be exported as CSV file. The
@@ -53,24 +53,24 @@ if (!require("hsdar")) {
 jscode <- "shinyjs.closeWindow = function() { window.close(); }"
 
 ui = dashboardPage(
-  
+
   # define skin:
   skin = 'black',
-  
+
   # define header:
   dashboardHeader(
     title = "UHD examineR",
-    
+
     # add close button:
-    tags$li(actionButton("close", "", 
-                         icon = icon('power-off'), 
-                         style="color: #fff; background-color: #FC091B; border-color: #FC091B"), 
+    tags$li(actionButton("close", "",
+                         icon = icon('power-off'),
+                         style="color: #fff; background-color: #FC091B; border-color: #FC091B"),
             class='dropdown')
   ),
-  
+
   # make sidebar with control widgets:
   dashboardSidebar(
-    
+
     # needed for close button:
     useShinyjs(),
     extendShinyjs(text = jscode, functions = c("closeWindow")),
@@ -78,24 +78,24 @@ ui = dashboardPage(
     # specify input file:
     fileInput(inputId = 'file',
               label = 'Select raster:'),
-    
+
     # choose image rotation angle:
-    selectInput('sliderROT', label='rotate image clockwise by:', 
-                choices = c(0,90,180,270), 
+    selectInput('sliderROT', label='rotate image clockwise by:',
+                choices = c(0,90,180,270),
                 selected=0)
-    ),
-  
+  ),
+
   # make main body:
   dashboardBody(
-    
+
     # ROW 1:
     fluidRow(
-      
+
       # image plotting area:
       box(
         status = 'primary',
         title = "Raster",
-        solidHeader = TRUE, 
+        solidHeader = TRUE,
         plotOutput("rast", brush = brushOpts(
           id = "rasPlot_brush",
           stroke = 'cyan',
@@ -103,92 +103,92 @@ ui = dashboardPage(
           width = '100%',
           height = '600px')
       ),
-      
+
       column(
         width=6,
-        
+
         # process raster data:
         tabBox(
           width = NULL,
           title = 'Filter raster',
-          
+
           # SPATIAL FILTER:
-          tabPanel('Spatial filter', 
-                   
+          tabPanel('Spatial filter',
+
                    # optionally apply spatial filter:
-                   checkboxInput("checkboxSpatialFilter", 
-                                 label = "Spatial filter", 
+                   checkboxInput("checkboxSpatialFilter",
+                                 label = "Spatial filter",
                                  value = FALSE),
-                   
+
                    # select spatial filter:
                    selectInput("selectedSpatialFilter",
                                label = "spatial filter",
                                c("median","mean")),
-                   
+
                    # choose Median window size:
-                   selectInput('sliderMED', label='spatial filter window size', 
-                               choices = c(3,5,7,9,11,13,15,17,19,21), 
+                   selectInput('sliderMED', label='spatial filter window size',
+                               choices = c(3,5,7,9,11,13,15,17,19,21),
                                selected=3)
           ),
           tabPanel('Spectral filter',
-                   
+
                    # optionally apply spectral filter:
-                   checkboxInput("checkboxSG", 
-                                 label = "Savitzky-Golay (2nd order)", 
+                   checkboxInput("checkboxSG",
+                                 label = "Savitzky-Golay (2nd order)",
                                  value = FALSE),
-                   
+
                    # choose SG filter width:
-                   selectInput('sliderSG', label='filter width', 
-                               choices = c(3,5,7,9,11,13,15), 
+                   selectInput('sliderSG', label='filter width',
+                               choices = c(3,5,7,9,11,13,15),
                                selected=5)
           )
         ),
-        
+
         box(
           width = NULL,
           title = 'Save filtered raster data',
-          
+
           # download processed raster:
           downloadButton("downloadRaster", "Save processed raster to TIF"
-        )
+          )
         ),
-        
+
         box(
           width=NULL,
-          
+
           # optionally limit spectral range:
-          checkboxInput("checkbox01", 
-                        label = "Plot: clip data to 470-830 nm", 
+          checkboxInput("checkbox01",
+                        label = "Plot: clip data to 470-830 nm",
                         value = TRUE)
         )
       )
     ),
-    
+
     # ROW 2:
     fluidRow(
-      
+
       # graph plotting area:
       tabBox(
-        title = "VIS-NIR reflectance", 
+        title = "VIS-NIR reflectance",
         tabPanel('Selected values', plotOutput("TSplot")),
         tabPanel('All saved values', plotOutput("combiPlot"))
       ),
-      
+
       column(
         width = 6,
-        
+
         # controls to choose, label, add and save selected spectrum:
         box(
           width = NULL,
           title = 'Save selected values to table',
-          selectInput('selectedValues', 'Select Values:', 
+          selectInput('selectedValues', 'Select Values:',
                       choices = c('Mean',
                                   'Standard Deviation')),
           textInput('colName', 'Column Name:'),
           actionButton('addValues', 'Add Values', icon=icon('plus')),
           downloadButton("downloadData", "Save table to CSV")
         ),
-        
+
         # table plotting area:
         box(
           width=NULL,
@@ -196,7 +196,7 @@ ui = dashboardPage(
         )
       )
     )
-    
+
   )
 )
 
@@ -210,20 +210,20 @@ options(shiny.maxRequestSize=500*1024^2)
 # ------------------------
 
 server <- function(input, output) {
-  
+
   # define stop button:
   observeEvent(input$close, {
     js$closeWindow()
     stopApp()
   })
-  
+
   # define spatial filter fuction:
-  multiFocal <- function(x, w) { 
-    if(is.character(x)) { 
-      x <- brick(x) 
-    } 
-    
-    # The function to be applied to each individual layer 
+  multiFocal <- function(x, w) {
+    if(is.character(x)) {
+      x <- brick(x)
+    }
+
+    # The function to be applied to each individual layer
     if(input$selectedSpatialFilter=="mean"){
       # MEAN:
       vx <- velox(x)
@@ -235,7 +235,7 @@ server <- function(input, output) {
       r <- vx2$as.RasterStack()
       return(r)
     } else {
-      
+
       # MEDIAN:
       vx <- velox(x)
       vx2 <- vx$copy()
@@ -246,7 +246,7 @@ server <- function(input, output) {
       return(r)
     }
   }
-  
+
   # load raster from file and rotate:
   imgInput <- reactive({
     if (nlayers(stack(input$file$datapath)) != 41) {
@@ -265,29 +265,29 @@ server <- function(input, output) {
         cl <- t(flip(stack(input$file$datapath),1))
       }
     }
-    
+
     # and apply spatial filter if selected:
     if (input$checkboxSpatialFilter) {
       multiFocal(cl)
     } else cl
   })
-  
+
   #transform to velox for faster processing:
   veloxInput <- reactive({
     if (input$checkboxSG) {
-      
+
       # Savitzky-Golay-Filter:
       cl <- imgInput()
       m <- as.matrix(values(cl))
       wl <- seq(450,850,10)
-      
+
       # create speclib object:
       spectral_data <- speclib(m, wl)
       idSpeclib(spectral_data) <- as.character(wl)
-      
+
       # filter:
       SG <- smoothSpeclib(spectral_data, method = "sgolay", p = 2, n = as.numeric(input$sliderSG))
-      
+
       # as raster:
       imgSG <- cl
       values(imgSG) <- spectra(SG)
@@ -298,13 +298,13 @@ server <- function(input, output) {
   # create raster plot:
   output$rast <- renderPlot({
     cl <- imgInput()
-    plotRGB(cl, r=24,g=10,b=3,scale=65536, stretch='hist')
+    plotRGB(cl, r=22,g=13,b=6,scale=65536, stretch='hist', asp=1)
   })
-  
+
   # get extent of selected region:
   Coords <- reactive({
     req(input$rasPlot_brush$xmin)
-    
+
     c(input$rasPlot_brush$xmin, input$rasPlot_brush$xmax,
       input$rasPlot_brush$ymin, input$rasPlot_brush$ymax)
   })
@@ -314,32 +314,38 @@ server <- function(input, output) {
     vl <- veloxInput()
     as.vector(vl$extract(as(raster::extent(Coords()), 'SpatialPolygons') ,fun=mean))
   })
-  
+
   # get sd reflection of selected region:
   valueSD  <- eventReactive(input$rasPlot_brush$xmin,{
     vl <- veloxInput()
     as.vector(vl$extract(as(raster::extent(Coords()), 'SpatialPolygons') ,fun=sd))
   })
-  
+
   # label spectral data:
   waveL <- eventReactive(input$rasPlot_brush$xmin,{
     w <- seq(450,850,10)
     w
   })
-  
+
   # create and call graph plot:
   output$TSplot <- renderPlot(res = 100, {
-    df <- data.frame(
-      m = valueMean()/65536,
-      ms = valueSD()/65536,
+    if(valueMean()>1){
+      df <- data.frame(
+        m = valueMean()/65536,
+        ms = valueSD()/65536,
+        wl = waveL()
+      )
+    } else  df <- data.frame(
+      m = valueMean(),
+      ms = valueSD(),
       wl = waveL()
     )
-    
+
     # optionally limit plot data:
     if (input$checkbox01) {
       df <- df[3:39,]
     }
-    
+
     # call:
     ggplot(data=df, aes(x=wl,y=m))+
       geom_line(col='black', lwd=1.5) +
@@ -351,9 +357,9 @@ server <- function(input, output) {
       theme_classic() +
       theme(panel.grid.major = element_line(colour = 'grey90'),
             panel.grid.minor = element_line(colour = 'grey90', linetype = 2))
-    
+
   })
-  
+
   # create and call a plot of datatable:
   output$combiPlot <- renderPlot(res=100, {
     df <- storedData$df
@@ -361,7 +367,7 @@ server <- function(input, output) {
       df <- df[, -grep("_sd", colnames(df))]
     }
     df <- reshape2::melt(df, id='wl')
-    
+
     # call:
     ggplot(data=df, aes(x=wl,y=value,col=variable))+
       geom_line() +
@@ -371,52 +377,60 @@ server <- function(input, output) {
       theme(panel.grid.major = element_line(colour = 'grey90'),
             panel.grid.minor = element_line(colour = 'grey90', linetype = 2),
             legend.title = element_blank())
-    
+
   })
-  
-  
+
+
   # mean of selection:
   selectedMean <- reactive({
     tmp <- valueMean()
-    data.frame(
-      m = tmp[3:39]/65536
+    if (tmp>1) {
+      data.frame(
+        m = tmp[3:39]/65536
+      )
+    } else  data.frame(
+      m = tmp[3:39]
     )
   })
-  
+
   # sd of selection:
   selectedSD <- reactive({
     tmp <- valueSD()
-    data.frame(
-      m = tmp[3:39]/65536
+    if (tmp>1) {
+      data.frame(
+        m = tmp[3:39]/65536
+      )
+    } else data.frame(
+      m = tmp[3:39]
     )
   })
-  
+
   # create base table:
   storedData <- reactiveValues(
     df = data.frame(
       wl = seq(470,830,10)
     )
   )
-  
+
   # add selected values to table:
   observeEvent(input$addValues, {
     if (input$selectedValues == 'Mean') {
       newData <- selectedMean()
     } else newData <- selectedSD()
     storedData$df$newData <- round(newData[,1],5)
-    
+
     # and label them:
     if (input$selectedValues == 'Mean') {
       names(storedData$df)[names(storedData$df) == 'newData'] <- paste(input$colName,'_mean', sep='')
     } else names(storedData$df)[names(storedData$df) == 'newData'] <- paste(input$colName,'_sd', sep='')
   })
-  
+
   # plot table:
   output$table <- DT::renderDataTable({
     df <- storedData$df
-    datatable(df, 
+    datatable(df,
               extensions = c("FixedColumns", "FixedHeader", 'Scroller'),
-              options = list(scroller=TRUE, 
+              options = list(scroller=TRUE,
                              scrollX=TRUE,
                              rownames=FALSE,
                              searching =FALSE,
@@ -424,14 +438,14 @@ server <- function(input, output) {
                              scrollY = "400px",
                              fixedHeader = TRUE))
   })
-  
+
   # download table:
   output$downloadData <- downloadHandler(
     filename = 'selected_spectral_data.csv',
     content = function(file) {
       write.csv(storedData$df, file, row.names = FALSE)}
   )
-  
+
   # download raster:
   output$downloadRaster <- downloadHandler(
     filename = 'processed_raster_data.tif',
@@ -439,7 +453,7 @@ server <- function(input, output) {
       raster::writeRaster(veloxInput()$as.RasterStack(), file)
     }
   )
-  
+
 }
 
 # ------------------------
@@ -494,22 +508,3 @@ shinyApp(ui = ui, server = server)
 # Lukas W. Lehnert, Hanna Meyer, Joerg Bendix (2018). hsdar:
 # Manage, analyse and simulate hyperspectral data in R. R package
 # version 0.7.1.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
